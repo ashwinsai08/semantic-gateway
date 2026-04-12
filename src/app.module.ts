@@ -4,10 +4,15 @@ import { AppService } from './app.service';
 import { LlmModule } from './llm/llm.module';
 import { TestController } from './test/test.controller';
 import { TestModule } from './test/test.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [LlmModule],
-  controllers: [AppController, TestController, ],
+  imports: [
+    LlmModule,
+    ConfigModule.forRoot({
+      isGlobal: true, // 👈 important
+    })],
+  controllers: [AppController, TestController,],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

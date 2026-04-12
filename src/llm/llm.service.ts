@@ -10,7 +10,7 @@ export class LlmService {
 
   async generate(prompt: string): Promise<any> {
     const response = await this.client.chat.completions.create({
-      model: 'llama3-8b-8192', // fast + good
+      model: 'llama-3.1-8b-instant',
       messages: [
         { role: 'user', content: prompt },
       ],
