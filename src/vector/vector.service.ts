@@ -1,21 +1,27 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { EmbeddingService } from '../embedding/embedding.service';
 
+type Document = {
+  text: string;
+  embedding: number[];
+};
+
 @Injectable()
 export class VectorService implements OnModuleInit {
-  private documents: { text: string; embedding: number[] }[] = [];
+  private documents: Document[] = [];
 
-  constructor(private readonly embeddingService: EmbeddingService) { }
+  constructor(private readonly embeddingService: EmbeddingService) {}
 
+  // 🔥 Index documents on startup
   async onModuleInit() {
     await this.indexDocuments();
   }
 
   private async indexDocuments() {
     const docs = [
-      "Refund policy is 7 days",
-      "Shipping takes 3-5 days",
-      "You can cancel anytime before dispatch",
+      "Customers can return products within 7 days. Refund policy is 7 days from delivery.",
+      "Shipping usually takes 3-5 business days depending on location.",
+      "You can cancel your order anytime before it is dispatched.",
     ];
 
     for (const text of docs) {
@@ -40,25 +46,18 @@ export class VectorService implements OnModuleInit {
     return dot / (magA * magB);
   }
 
-  // 🔥 Step 5: Search
-  async search(query: string) {
+  // 🔥 Return top K matches
+  async search(query: string, topK = 2) {
     const queryEmbedding = await this.embeddingService.embed(query);
 
-    let bestMatch;
-    let bestScore = -1;
+    const results = this.documents.map((doc) => ({
+      text: doc.text,
+      score: this.cosineSimilarity(queryEmbedding, doc.embedding),
+    }));
 
-    for (const doc of this.documents) {
-      const score = this.cosineSimilarity(queryEmbedding, doc.embedding);
+    // Sort by highest similarity
+    results.sort((a, b) => b.score - a.score);
 
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = doc;
-      }
-    }
-
-    return {
-      bestMatch,
-      bestScore,
-    };
+    return results.slice(0, topK);
   }
 }

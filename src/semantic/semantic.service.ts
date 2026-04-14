@@ -7,27 +7,46 @@ export class SemanticService {
   constructor(
     private readonly vectorService: VectorService,
     private readonly llmService: LlmService,
-  ) {}
+  ) { }
 
   async process(query: string) {
-    const { bestMatch, bestScore } = await this.vectorService.search(query);
+    const results = await this.vectorService.search(query, 2);
 
-    console.log('Score:', bestScore); 
+    const bestScore = results[0]?.score || 0;
 
-    if (bestScore > 0.65) {
+    // 🔥 Build context from top results
+    const context = results.map((r) => r.text).join('\n');
+
+    // 🧠 RAG flow
+    if (bestScore > 0.6) {
+      const prompt = `
+You are a helpful assistant.
+
+Answer the question using ONLY the context below.
+
+Context:
+${context}
+
+Question:
+${query}
+`;
+
+      const answer = await this.llmService.generate(prompt);
+
       return {
-        source: 'VECTOR',
-        answer: bestMatch.text,
+        source: 'RAG',
         score: bestScore,
+        answer,
       };
     }
 
-    const llmResponse = await this.llmService.generate(query);
+    // ❌ Fallback to LLM
+    const answer = await this.llmService.generate(query);
 
     return {
       source: 'LLM',
-      answer: llmResponse,
       score: bestScore,
+      answer,
     };
   }
 }
