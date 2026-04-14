@@ -4,6 +4,7 @@ import { EmbeddingController } from './embedding.controller';
 
 @Module({
   providers: [EmbeddingService],
-  controllers: [EmbeddingController]
+  controllers: [EmbeddingController],
+  exports: [EmbeddingService]
 })
 export class EmbeddingModule {}

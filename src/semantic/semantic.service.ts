@@ -14,7 +14,7 @@ export class SemanticService {
 
     console.log('Score:', bestScore); 
 
-    if (bestScore > 0.8) {
+    if (bestScore > 0.65) {
       return {
         source: 'VECTOR',
         answer: bestMatch.text,

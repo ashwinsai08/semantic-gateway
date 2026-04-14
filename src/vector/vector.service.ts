@@ -5,7 +5,7 @@ import { EmbeddingService } from '../embedding/embedding.service';
 export class VectorService implements OnModuleInit {
   private documents: { text: string; embedding: number[] }[] = [];
 
-  constructor(private readonly embeddingService: EmbeddingService) {}
+  constructor(private readonly embeddingService: EmbeddingService) { }
 
   async onModuleInit() {
     await this.indexDocuments();
