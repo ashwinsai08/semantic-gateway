@@ -10,26 +10,24 @@ export class SemanticService {
   ) { }
 
   async process(query: string) {
+
+    // Call made vector service to check in database
     const results = await this.vectorService.search(query, 2);
 
     const bestScore = results[0]?.score || 0;
 
-    // 🔥 Build context from top results
+    // Build context from top results
     const context = results.map((r) => r.text).join('\n');
 
-    // 🧠 RAG flow
+    // RAG flow
     if (bestScore > 0.6) {
       const prompt = `
-You are a helpful assistant.
-
-Answer the question using ONLY the context below.
-
-Context:
-${context}
-
-Question:
-${query}
-`;
+          You are a helpful assistant.
+          Answer the question using ONLY the context below.
+          Context: ${context}
+          Question:
+          ${query}
+          `;
 
       const answer = await this.llmService.generate(prompt);
 
@@ -40,7 +38,7 @@ ${query}
       };
     }
 
-    // ❌ Fallback to LLM
+    // Fallback to LLM
     const answer = await this.llmService.generate(query);
 
     return {
