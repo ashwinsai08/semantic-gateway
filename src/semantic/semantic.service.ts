@@ -9,6 +9,11 @@ export class SemanticService {
     private readonly llmService: LlmService,
   ) { }
 
+  /**
+   * Service to use the RAG flow
+   * @param query - Get the user query
+   * @returns - The response from LLM(Constructed based on the prompt)
+   */
   async process(query: string) {
 
     // Call made vector service to check in database
@@ -20,6 +25,7 @@ export class SemanticService {
     const context = results.map((r) => r.text).join('\n');
 
     // RAG flow
+    // Check if the score is greater then use the rag flow send the context from DB to the LLM to device a proper response
     if (bestScore > 0.6) {
       const prompt = `
           You are a helpful assistant.
