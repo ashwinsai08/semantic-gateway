@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { EmbeddingService } from '../embedding/embedding.service';
+import { Logger } from 'winston';
 
 type Document = {
   text: string;
@@ -9,6 +10,7 @@ type Document = {
 @Injectable()
 export class VectorService implements OnModuleInit {
   private documents: Document[] = [];
+  private readonly logger = new Logger
 
   constructor(private readonly embeddingService: EmbeddingService) {}
 
@@ -38,6 +40,7 @@ export class VectorService implements OnModuleInit {
 
   //  Cosine similarity function to determine the similarity point
   private cosineSimilarity(a: number[], b: number[]): number {
+    this.logger.info('Function came to this function')
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
 
     const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
