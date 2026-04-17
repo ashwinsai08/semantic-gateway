@@ -12,7 +12,7 @@ export class VectorService implements OnModuleInit {
 
   constructor(private readonly embeddingService: EmbeddingService) {}
 
-  // 🔥 Index documents on startup
+  // Service to add docs into database
   async onModuleInit() {
     await this.indexDocuments();
   }
@@ -36,7 +36,7 @@ export class VectorService implements OnModuleInit {
     console.log('✅ Documents indexed:', this.documents.length);
   }
 
-  // 🧠 Cosine similarity
+  //  Cosine similarity function to determine the similarity point
   private cosineSimilarity(a: number[], b: number[]): number {
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
 
