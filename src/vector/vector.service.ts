@@ -12,12 +12,15 @@ type Document = {
 export class VectorService {
   private documents: Document[] = [];
   private readonly logger = new Logger
-  private documentsService : DocumentsService
-  constructor(private readonly embeddingService: EmbeddingService) {}
+  
+  constructor(
+    private readonly embeddingService: EmbeddingService,
+    private readonly documentsService : DocumentsService
+  ) {}
 
   //  Cosine similarity function to determine the similarity point
-  private cosineSimilarity(a: number[], b: number[]): number {
-    this.logger.info('Function came to this function')
+  async cosineSimilarity(a: number[], b: number[]) {
+    // this.logger.info('Function came to this function')
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
 
     const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
@@ -27,6 +30,7 @@ export class VectorService {
   }
   
     async search(query: string, topK = 2) {
+      console.log('it has come to search')
       // DocumentsService already does embed + pgvector search
       const results = await this.documentsService.searchSimilar(query);
       return results.map((r) => ({
