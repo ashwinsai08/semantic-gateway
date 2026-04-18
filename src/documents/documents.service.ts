@@ -33,21 +33,18 @@ export class DocumentsService {
    * @param query - The query to fetch the similar response from the 
    * @returns 
    */
-  async searchSimilar(query: string) {
+  async searchSimilar(query: string, topK = 2) {
     const embedding = await this.embeddingService.embed(query);
     const vector = `[${embedding.join(',')}]`;
-    const queryRequest = `
-    SELECT id, content,
-    1 - (embedding <=> '${vector}'::vector) AS score
-    FROM documents
-    ORDER BY embedding <=> '${vector}'::vector
-    LIMIT 3;
-    `
-    console.log(queryRequest)
-    const results = await this.repo.query(queryRequest);
 
-
-    console.log('results')
+    const results = await this.repo.query(
+      `SELECT id, content,
+        1 - (embedding <=> $1::vector) AS score
+       FROM documents
+       ORDER BY embedding <=> $1::vector
+       LIMIT $2`,
+      [vector, topK]
+    );
 
     return results;
   }
