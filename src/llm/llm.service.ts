@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
 import { Logger } from 'winston';
 
+/**
+ * Service for LLM Service
+ */
 @Injectable()
 export class LlmService {
 
