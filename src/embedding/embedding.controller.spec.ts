@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EmbeddingController } from './embedding.controller';
 
+/**
+ * EmbeddingController Unit test
+ */
 describe('EmbeddingController', () => {
   let controller: EmbeddingController;
 
