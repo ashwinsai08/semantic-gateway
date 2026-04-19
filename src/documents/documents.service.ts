@@ -33,7 +33,7 @@ export class DocumentsService {
   /**
    * Service to search a similar response in the database based on the query
    * @param query - The query to fetch the similar response from the 
-   * @returns 
+   * @returns - Results from the Database
    */
 
   async searchSimilar(query: string, topK = 2) {

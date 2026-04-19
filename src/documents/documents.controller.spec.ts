@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DocumentsController } from './documents.controller';
 
+/**
+ * Documents Controller Unit tests
+ */
 describe('DocumentsController', () => {
   let controller: DocumentsController;
 
