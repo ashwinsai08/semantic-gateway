@@ -4,7 +4,6 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { EmbeddingService } from '../embedding/embedding.service';
 import { DocumentEntity } from './entity/documents.entity';
-import { Pool } from 'pg';
 
 @Injectable()
 export class DocumentsService {
@@ -13,18 +12,7 @@ export class DocumentsService {
     private repo: Repository<DocumentEntity>,
     @InjectDataSource() private dataSource: DataSource,
     private embeddingService: EmbeddingService,
-    // private pool: Pool
   ) { }
-
-  // onModuleInit() {
-  //   this.pool = new Pool({
-  //     host: '/tmp',           // Unix socket path on Mac
-  //     port: 5432,
-  //     user: 'postgres',
-  //     password: 'postgres',
-  //     database: 'semantic_gateway',
-  //   });
-  // }
 
   /**
    * Service to add the value in the database
@@ -72,31 +60,4 @@ export class DocumentsService {
       return [];
     }
   }
-
-  // async searchSimilar(query: string, topK = 2) {
-  //   const embedding = await this.embeddingService.embed(query);
-  //   const vector = `[${embedding.join(',')}]`;
-
-  //   console.log('vector dims:', vector.split(',').length); // confirm 768
-
-  //   const result = await this.pool.query(
-  //     `SELECT id, content,
-  //       1 - (embedding <=> $1::vector) AS score
-  //      FROM documents
-  //      ORDER BY embedding <=> $1::vector
-  //      LIMIT 5`,
-  //     [vector]
-  //   );
-    
-  //   console.log('row count:', result.rowCount);
-  //   console.log('rows:', result.rows);
-  //   console.log('topK type:', typeof topK, 'value:', topK);
-  //   console.log('query vector first 5:', vector.substring(0, 80));
-  //   console.log('query vector last 5:', vector.substring(vector.length - 20));
-
-  //   console.log('pg direct results:', result.rows);
-  //   return result.rows;
-  // }
-
-
 }
