@@ -4,6 +4,7 @@ import { DocumentsService } from './documents.service';
 import { DocumentsController } from './documents.controller';
 import { EmbeddingModule } from '../embedding/embedding.module';
 import { DocumentEntity } from './entity/documents.entity';
+import { Pool } from 'pg';
 
 @Module({
   imports: [
@@ -14,4 +15,4 @@ import { DocumentEntity } from './entity/documents.entity';
   controllers: [DocumentsController],
   exports: [DocumentsService],
 })
-export class DocumentsModule {}
+export class DocumentsModule { }

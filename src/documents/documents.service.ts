@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';

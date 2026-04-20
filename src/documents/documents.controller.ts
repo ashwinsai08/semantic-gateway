@@ -1,15 +1,18 @@
-import { Controller, Get, Query, Post, Body } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body, Inject } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
+import { Pool } from 'pg';
+import { EmbeddingService } from '../embedding/embedding.service';
 
 /**
  * Documents Controller
  */
 @Controller('documents')
 export class DocumentsController {
-  @InjectDataSource() private dataSource: DataSource
-  constructor(private readonly documentsService: DocumentsService) { }
+  constructor(private readonly documentsService: DocumentsService,
+    private embeddingService: EmbeddingService,
+  ) { }
 
   @Post()
   async create(@Body('content') content: string) {
@@ -26,14 +29,4 @@ export class DocumentsController {
     console.log('came here for controller')
     return this.documentsService.searchSimilar(query);
   }
-
-  // test controller to connect to database
-  @Get('test-raw')
-  async testRaw() {
-    const result = await this.dataSource.query(
-      `SELECT id, content FROM documents`
-    );
-    console.log('raw test:', result);
-    return result;
-  }
-} 
+}
