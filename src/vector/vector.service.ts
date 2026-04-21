@@ -54,6 +54,12 @@ export class VectorService implements OnModuleInit {
     console.log('✅ Documents indexed:', this.documents.length);
   }
 
+  /**
+   * Function to embed and search the value present in the database
+   * @param query - query from user get the embded value
+   * @param topK - topk value
+   * @returns 0 the docs with topk documents
+   */
   async search(query: string, topK = 2) {
     const queryEmbedding = await this.embeddingService.embed(query);
     const results = this.documents.map((doc) => ({
