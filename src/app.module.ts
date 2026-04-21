@@ -12,6 +12,7 @@ import { SemanticService } from './semantic/semantic.service';
 import { SemanticModule } from './semantic/semantic.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentsModule } from './documents/documents.module';
+import { ChunckingModule } from './chuncking/chuncking.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { DocumentsModule } from './documents/documents.module';
     EmbeddingModule,
     VectorModule,
     SemanticModule,
-    DocumentsModule],
+    DocumentsModule,
+    ChunckingModule],
   controllers: [AppController, TestController, SemanticController,],
   providers: [AppService, SemanticService],
 })
