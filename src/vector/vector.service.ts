@@ -21,7 +21,7 @@ export class VectorService implements OnModuleInit {
   }
 
   private async indexDocuments() {
-    // These are now FULL documents, not pre-split sentences
+    // These are now FULL documents
     const rawDocs = [
       `Our return policy allows customers to return any product within 7 days 
        of delivery. Products must be unused and in original packaging. 
@@ -43,7 +43,7 @@ export class VectorService implements OnModuleInit {
     // Chunk all docs first
     const chunks = this.chunkingService.chunkDocuments(rawDocs);
     chunks.forEach((c, i) => console.log(`  [${i}] "${c.substring(0, 60)}..."`));
-    console.log(`📄 Total chunks created: ${chunks.length}`);  // will be more than 3
+    console.log(` Total chunks created: ${chunks.length}`);
 
     // Embed each chunk separately
     for (const chunk of chunks) {
@@ -51,7 +51,7 @@ export class VectorService implements OnModuleInit {
       this.documents.push({ text: chunk, embedding });
     }
 
-    console.log('✅ Documents indexed:', this.documents.length);
+    console.log('Indexed:', this.documents.length);
   }
 
   /**
@@ -70,6 +70,12 @@ export class VectorService implements OnModuleInit {
     return results.slice(0, topK);
   }
 
+  /**
+   * Function to find the cosine similarity value
+   * @param a - input array with the embiddings
+   * @param b  - array with the embedding
+   * @returns - the cosine similarty equation value
+   */
   private cosineSimilarity(a: number[], b: number[]) {
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
     const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
