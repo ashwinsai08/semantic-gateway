@@ -7,7 +7,7 @@ export class ChunckingService {
 
 
   /**
-   * Split text into overlapping chunks
+   * Split text into overlapping chunks based on charecters
    * @param text      - Full document text
    * @param chunkSize - Max characters per chunk (default 200)
    * @param overlap   - Overlap between chunks (default 50)
@@ -32,11 +32,47 @@ export class ChunckingService {
   }
 
   /**
- * Chunk multiple documents at once
- * @param docs - Array of full document strings
- */
+   * Chunking Statergy Split into sentence aware chunks
+   * Groups sentences together until chunkSize is reached
+   * Never breaks mid-sentence
+   */
+  chunkSentences(text: string, chunkSize = 200, overlap = 1): string[] {
+    // Step 1: Split into sentences
+    const sentences = text
+      .replace(/\s+/g, ' ')         // normalize whitespace
+      .trim()
+      .split(/(?<=[.!?])\s+/)       // split AFTER punctuation
+      .filter(s => s.length > 0);
+
+    const chunks: string[] = [];
+    let currentChunk: string[] = [];
+    let currentLength = 0;
+
+    for (const sentence of sentences) {
+      // If adding this sentence exceeds limit AND we have content
+      if (currentLength + sentence.length > chunkSize && currentChunk.length > 0) {
+        chunks.push(currentChunk.join(' '));
+
+        // Overlap: keep last N sentences in next chunk
+        currentChunk = currentChunk.slice(-overlap);
+        currentLength = currentChunk.join(' ').length;
+      }
+
+      currentChunk.push(sentence);
+      currentLength += sentence.length;
+    }
+    if (currentChunk.length > 0) {
+      chunks.push(currentChunk.join(' '));
+    }
+    return chunks;
+  }
+
+  /**
+   * Chunk multiple documents at once
+   * @param docs - Array of full document strings
+   */
   chunkDocuments(docs: string[]): string[] {
-    return docs.flatMap((doc) => this.chunkText(doc));
+    return docs.flatMap((doc) => this.chunkSentences(doc));
   }
 
 }
