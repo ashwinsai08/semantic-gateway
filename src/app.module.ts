@@ -13,6 +13,7 @@ import { SemanticModule } from './semantic/semantic.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentsModule } from './documents/documents.module';
 import { ChunckingModule } from './chuncking/chuncking.module';
+import { IntentService } from './intent/intent.service';
 
 @Module({
   imports: [
@@ -36,6 +37,6 @@ import { ChunckingModule } from './chuncking/chuncking.module';
     DocumentsModule,
     ChunckingModule],
   controllers: [AppController, TestController, SemanticController,],
-  providers: [AppService, SemanticService],
+  providers: [AppService, SemanticService, IntentService],
 })
 export class AppModule { }
