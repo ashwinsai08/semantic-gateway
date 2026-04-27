@@ -14,6 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentsModule } from './documents/documents.module';
 import { ChunckingModule } from './chuncking/chuncking.module';
 import { IntentService } from './intent/intent.service';
+import { IntentModule } from './intent/intent.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { IntentService } from './intent/intent.service';
     VectorModule,
     SemanticModule,
     DocumentsModule,
-    ChunckingModule],
+    ChunckingModule,
+    IntentModule],
   controllers: [AppController, TestController, SemanticController,],
   providers: [AppService, SemanticService, IntentService],
 })

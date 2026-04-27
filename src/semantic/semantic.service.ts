@@ -21,7 +21,7 @@ export class SemanticService {
     // Extract category intent first
     const category = this.intentService.extractCategory(query);
     console.log(`Detected category: ${category ?? 'none (searching all)'}`);
-    
+
     // Call made vector service to check in database
     const results = await this.vectorService.search(query, 2, category);
     const bestScore = results[0]?.score || 0;
@@ -30,7 +30,7 @@ export class SemanticService {
     const context = results.map((r) => r.text).join('\n');
 
     // Actual RAG flow
-    
+
     // Check if the score is greater then use the rag flow send the context from DB to the LLM to device a proper response
     if (bestScore > 0.6) {
       const prompt = `
