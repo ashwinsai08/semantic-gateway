@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { VectorService } from '../vector/vector.service';
 import { LlmService } from '../llm/llm.service';
+import { IntentService } from '../intent/intent.service';
 
 @Injectable()
 export class SemanticService {
   constructor(
     private readonly vectorService: VectorService,
     private readonly llmService: LlmService,
+    private readonly intentService: IntentService,
   ) { }
 
   /**
@@ -16,9 +18,12 @@ export class SemanticService {
    */
   async process(query: string) {
 
+    // Extract category intent first
+    const category = this.intentService.extractCategory(query);
+    console.log(`Detected category: ${category ?? 'none (searching all)'}`);
+    
     // Call made vector service to check in database
-    const results = await this.vectorService.search(query, 2);
-
+    const results = await this.vectorService.search(query, 2, category);
     const bestScore = results[0]?.score || 0;
 
     // Build context from top results
@@ -31,9 +36,7 @@ export class SemanticService {
           You are a helpful assistant.
           Answer the question using ONLY the context below.
           Context: ${context}
-          Question:
-          ${query}
-          `;
+          Question: ${query}`;
 
       const answer = await this.llmService.generate(prompt);
 
