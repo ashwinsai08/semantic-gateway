@@ -29,7 +29,8 @@ export class SemanticService {
     // Build context from top results
     const context = results.map((r) => r.text).join('\n');
 
-    // RAG flow
+    // Actual RAG flow
+    
     // Check if the score is greater then use the rag flow send the context from DB to the LLM to device a proper response
     if (bestScore > 0.6) {
       const prompt = `
@@ -38,6 +39,7 @@ export class SemanticService {
           Context: ${context}
           Question: ${query}`;
 
+      // Call LLM to generate response with the prompt given.
       const answer = await this.llmService.generate(prompt);
 
       return {
@@ -47,7 +49,7 @@ export class SemanticService {
       };
     }
 
-    // Fallback to LLM
+    // Fallback to LLM where it generates randomly based on the question not a RAG system model
     const answer = await this.llmService.generate(query);
 
     return {
