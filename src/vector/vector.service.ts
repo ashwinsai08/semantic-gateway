@@ -117,4 +117,10 @@ export class VectorService implements OnModuleInit {
     const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
     return dot / (magA * magB);
   }
+
+
+  getDistinctCategories(): string[] {
+    const categories = this.documents.map(d => d.metadata.category);
+    return [...new Set(categories)]; // deduplicate
+  }
 }

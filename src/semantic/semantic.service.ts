@@ -18,9 +18,8 @@ export class SemanticService {
    */
   async process(query: string) {
 
-    // Extract category intent first
-    const category = this.intentService.extractCategory(query);
-    console.log(`Detected category: ${category ?? 'none (searching all)'}`);
+    const categories = this.vectorService.getDistinctCategories();
+    const category = await this.intentService.extractCategory(query, categories);
 
     // Call made vector service to check in database
     const results = await this.vectorService.search(query, 2, category);
