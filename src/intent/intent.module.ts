@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { IntentService } from './intent.service';
-import { EmbeddingModule } from 'src/embedding/embedding.module';
+import { EmbeddingModule } from '../embedding/embedding.module';
 
 @Module({
   imports : [EmbeddingModule],

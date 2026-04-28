@@ -6,7 +6,6 @@ import { VectorService } from '../vector/vector.service';
 export class IntentService {
   constructor(
     private readonly embeddingService: EmbeddingService,
-    private readonly vectorService: VectorService,
   ) { }
 
   async extractCategory(
