@@ -1,21 +1,44 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
+import { EmbeddingService } from '../embedding/embedding.service';
+import { VectorService } from '../vector/vector.service';
 
 @Injectable()
 export class IntentService {
+  constructor(
+    private readonly embeddingService: EmbeddingService,
+    private readonly vectorService: VectorService,
+  ) { }
 
-  extractCategory(query: string): string | undefined {
-    const q = query.toLowerCase();
+  // IntentService — accept categories as parameter instead
+  async extractCategory(
+    query: string,
+    categories: string[]  // ← passed in, not fetched internally
+  ): Promise<string | undefined> {
+    if (categories.length === 0) return undefined;
 
-    if (q.match(/return|refund|send back|exchange/)) {
-      return 'returns';
-    }
-    if (q.match(/ship|deliver|dispatch|tracking|arrive/)) {
-      return 'shipping';
-    }
-    if (q.match(/cancel|cancellation|stop order/)) {
-      return 'cancellation';
+    const queryEmbedding = await this.embeddingService.embed(query);
+    let bestCategory: string | undefined;
+    let bestScore = 0.4;
+
+    for (const category of categories) {
+      const categoryEmbedding = await this.embeddingService.embed(category);
+      const score = this.cosineSimilarity(queryEmbedding, categoryEmbedding);
+      console.log(`  "${category}" → ${score.toFixed(4)}`);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestCategory = category;
+      }
     }
 
-    return undefined;  // no filter → search all
+    console.log(`🎯 Best: ${bestCategory ?? 'none'}`);
+    return bestCategory;
+  }
+
+  private cosineSimilarity(a: number[], b: number[]): number {
+    const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
+    const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
+    const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
+    return dot / (magA * magB);
   }
 }
