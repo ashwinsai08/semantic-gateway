@@ -121,6 +121,8 @@ export class VectorService implements OnModuleInit {
 
   getDistinctCategories(): string[] {
     const categories = this.documents.map(d => d.metadata.category);
-    return [...new Set(categories)]; // deduplicate
+    // Add category to the set to avoid duplicates
+    return [...new Set(categories)]; 
+    
   }
 }

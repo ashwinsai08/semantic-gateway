@@ -9,10 +9,9 @@ export class IntentService {
     private readonly vectorService: VectorService,
   ) { }
 
-  // IntentService — accept categories as parameter instead
   async extractCategory(
     query: string,
-    categories: string[]  // ← passed in, not fetched internally
+    categories: string[]
   ): Promise<string | undefined> {
     if (categories.length === 0) return undefined;
 
@@ -31,7 +30,7 @@ export class IntentService {
       }
     }
 
-    console.log(`🎯 Best: ${bestCategory ?? 'none'}`);
+    console.log(`Best: ${bestCategory ?? 'none'}`);
     return bestCategory;
   }
 
