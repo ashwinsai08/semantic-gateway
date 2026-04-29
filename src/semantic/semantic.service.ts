@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { VectorService } from '../vector/vector.service';
 import { LlmService } from '../llm/llm.service';
 import { IntentService } from '../intent/intent.service';
+import { RerankService } from '../rerank/rerank.service';
 
 @Injectable()
 export class SemanticService {
@@ -9,6 +10,7 @@ export class SemanticService {
     private readonly vectorService: VectorService,
     private readonly llmService: LlmService,
     private readonly intentService: IntentService,
+    private readonly rerankService: RerankService,
   ) { }
 
   /**
@@ -17,43 +19,42 @@ export class SemanticService {
    * @returns - The response from LLM(Constructed based on the prompt)
    */
   async process(query: string) {
-
+    // Step 1 — extract category
     const categories = this.vectorService.getDistinctCategories();
     const category = await this.intentService.extractCategory(query, categories);
+    console.log(`Detected category: ${category ?? 'none'}`);
 
-    // Call made vector service to check in database
-    const results = await this.vectorService.search(query, 2, category);
-    const bestScore = results[0]?.score || 0;
+    // Step 2 — vector search, get top 6 now (not 2)
+    const candidates = await this.vectorService.search(query, 6, category);
+    console.log(`Vector search returned ${candidates.length} candidates`);
 
-    // Build context from top results
-    const context = results.map((r) => r.text).join('\n');
+    // Step 3 — rerank, get top 2
+    const reranked = await this.rerankService.rerank(query, candidates, 2);
 
-    // Actual RAG flow
+    const bestScore = reranked[0]?.rerankScore || 0;
+    const context = reranked.map((r) => r.text).join('\n');
 
-    // Check if the score is greater then use the rag flow send the context from DB to the LLM to device a proper response
-    if (bestScore > 0.6) {
+    // Step 4 — generate answer
+    if (bestScore > 5) {
       const prompt = `
-          You are a helpful assistant.
-          Answer the question using ONLY the context below.
-          Context: ${context}
-          Question: ${query}`;
-
-      // Call LLM to generate response with the prompt given.
+    You are a helpful assistant.
+    Answer the question using ONLY the context below.
+    Context: ${context}
+    Question: ${query}
+  `;
       const answer = await this.llmService.generate(prompt);
-
       return {
         source: 'RAG',
-        score: bestScore,
+        vectorScore: candidates[0]?.score,
+        rerankScore: bestScore,
         answer,
       };
     }
 
-    // Fallback to LLM where it generates randomly based on the question not a RAG system model
     const answer = await this.llmService.generate(query);
-
     return {
       source: 'LLM',
-      score: bestScore,
+      rerankScore: bestScore,
       answer,
     };
   }
