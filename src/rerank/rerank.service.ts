@@ -101,10 +101,10 @@ export class RerankService {
 
   /**
    * Rerank function with single llm call
-   * @param query 
-   * @param candidates 
-   * @param topN 
-   * @returns 
+   * @param query - query form the user
+   * @param candidates - the top candidates for the result
+   * @param topN - no of vtopN values
+   * @returns - top value after remarks
    */
   async rerank(query, candidates, topN = 2) {
     console.log(`🔄 Reranking ${candidates.length} candidates...`);
@@ -123,7 +123,7 @@ export class RerankService {
     }));
 
     scored.sort((a, b) => b.rerankScore - a.rerankScore);
-    console.log(`✅ Top after rerank: "${scored[0]?.text.substring(0, 60)}..."`);
+    console.log(`Top after rerank: "${scored[0]?.text.substring(0, 60)}..."`);
 
     return scored.slice(0, topN);
   }
