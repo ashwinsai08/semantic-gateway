@@ -18,35 +18,35 @@ export class RerankService {
    * @param candidates - Top-k results from vector search
    * @param topN       - How many to return after reranking
    */
-  async rerank(
-    query: string,
-    candidates: { text: string; score: number; metadata: any }[],
-    topN = 2,
-  ): Promise<RankedResult[]> {
-    console.log(`Reranking ${candidates.length} candidates...`);
+  // async rerank(
+  //   query: string,
+  //   candidates: { text: string; score: number; metadata: any }[],
+  //   topN = 2,
+  // ): Promise<RankedResult[]> {
+  //   console.log(`Reranking ${candidates.length} candidates...`);
 
-    // Score each candidate with LLM
-    const scored = await Promise.all(
-      candidates.map(async (candidate) => {
-        const rerankScore = await this.scoreCandidate(query, candidate.text);
-        console.log(
-          `  score ${rerankScore}/10 → "${candidate.text.substring(0, 60)}..."`
-        );
-        return {
-          text: candidate.text,
-          vectorScore: candidate.score,
-          rerankScore,
-          metadata: candidate.metadata,
-        };
-      }),
-    );
+  //   // Score each candidate with LLM
+  //   const scored = await Promise.all(
+  //     candidates.map(async (candidate) => {
+  //       const rerankScore = await this.scoreCandidate(query, candidate.text);
+  //       console.log(
+  //         `  score ${rerankScore}/10 → "${candidate.text.substring(0, 60)}..."`
+  //       );
+  //       return {
+  //         text: candidate.text,
+  //         vectorScore: candidate.score,
+  //         rerankScore,
+  //         metadata: candidate.metadata,
+  //       };
+  //     }),
+  //   );
 
-    // Sort by rerank score, not vector score
-    scored.sort((a, b) => b.rerankScore - a.rerankScore);
+  //   // Sort by rerank score, not vector score
+  //   scored.sort((a, b) => b.rerankScore - a.rerankScore);
 
-    console.log(`Top after rerank: "${scored[0]?.text.substring(0, 60)}..."`);
-    return scored.slice(0, topN);
-  }
+  //   console.log(`Top after rerank: "${scored[0]?.text.substring(0, 60)}..."`);
+  //   return scored.slice(0, topN);
+  // }
 
   /**
    * Ask LLM to score how relevant a chunk is to the query
@@ -66,5 +66,58 @@ export class RerankService {
     // Parse the number from LLM response
     const match = response.trim().match(/\d+(\.\d+)?/);
     return match ? parseFloat(match[0]) : 0;
+  }
+
+  /**
+   * Score all candiates function to use one llm call instead of mant
+   * @param query 
+   * @param candidates 
+   * @returns 
+   */
+  private async scoreAllCandidates(
+    query: string,
+    candidates: string[]
+  ): Promise<number[]> {
+    const numbered = candidates
+      .map((c, i) => `[${i + 1}] "${c.substring(0, 150)}"`)
+      .join('\n');
+
+    const prompt = `
+  Score each text's relevance to the query from 0-10.
+  Reply with ONLY comma-separated numbers matching the order.
+  Example reply: 8,3,6,2,9,4
+  
+  Query: "${query}"
+  
+  Texts:
+  ${numbered}
+  
+  Scores:`;
+
+    const response = await this.llmService.generate(prompt);
+    const scores = response.trim().split(',').map(s => parseFloat(s.trim()) || 0);
+    return scores;
+  }
+
+  async rerank(query, candidates, topN = 2) {
+    console.log(`🔄 Reranking ${candidates.length} candidates...`);
+
+    // One LLM call instead of N calls
+    const scores = await this.scoreAllCandidates(
+      query,
+      candidates.map(c => c.text)
+    );
+
+    const scored = candidates.map((candidate, i) => ({
+      text: candidate.text,
+      vectorScore: candidate.score,
+      rerankScore: scores[i] ?? 0,
+      metadata: candidate.metadata,
+    }));
+
+    scored.sort((a, b) => b.rerankScore - a.rerankScore);
+    console.log(`✅ Top after rerank: "${scored[0]?.text.substring(0, 60)}..."`);
+
+    return scored.slice(0, topN);
   }
 }

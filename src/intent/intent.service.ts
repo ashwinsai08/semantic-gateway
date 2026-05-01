@@ -32,6 +32,7 @@ export class IntentService {
     console.log(`Best: ${bestCategory ?? 'none'}`);
     return bestCategory;
   }
+  
 
   private cosineSimilarity(a: number[], b: number[]): number {
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
