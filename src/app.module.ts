@@ -18,9 +18,11 @@ import { IntentModule } from './intent/intent.module';
 import { RerankModule } from './rerank/rerank.module';
 import { EvalModule } from './eval/eval.module';
 import { CacheModule } from './cache/cache.module';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
+    LoggerModule,
     LlmModule,
     ConfigModule.forRoot({
       isGlobal: true, // 👈 important
