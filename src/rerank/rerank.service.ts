@@ -70,8 +70,8 @@ export class RerankService {
 
   /**
    * Score all candiates function to use one llm call instead of mant
-   * @param query 
-   * @param candidates 
+   * @param query - query form the user
+   * @param candidates - candiates from top values
    * @returns 
    */
   private async scoreAllCandidates(
