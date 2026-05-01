@@ -1,8 +1,10 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ChunckingService } from '../chuncking/chuncking.service';
 import { EmbeddingService } from '../embedding/embedding.service';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
-// Define the shape of your document
+// Vector Document Interface
 interface VectorDoc {
   text: string;
   embedding: number[];
@@ -18,6 +20,7 @@ export class VectorService implements OnModuleInit {
   private documents: VectorDoc[] = [];
 
   constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly embeddingService: EmbeddingService,
     private readonly chunkingService: ChunckingService,) { }
 
@@ -26,8 +29,7 @@ export class VectorService implements OnModuleInit {
   }
 
   private async indexDocuments() {
-    // These are now FULL documents
-    // Now docs carry metadata
+    // TODO: Change to get from pgvector
     const rawDocs = [
       {
         text: `Our return policy allows customers to return any product within 7 days 
@@ -56,10 +58,13 @@ export class VectorService implements OnModuleInit {
       },
     ];
 
-    // Changes for meta data filtering
+    // Add documents wuthe proper meta data
     for (const doc of rawDocs) {
+
+      // First of all chunk the documents
       const chunks = this.chunkingService.chunkText(doc.text);
 
+      // For each value of the chunks lets create a document with the text , embedding value and their metadata
       for (let i = 0; i < chunks.length; i++) {
         const embedding = await this.embeddingService.embed(chunks[i]);
         this.documents.push({
@@ -80,19 +85,17 @@ export class VectorService implements OnModuleInit {
   /**
    * Function to search with optional category filter
    * @param query - query from user get the embded value
-   * @param topK - topk value
+   * @param topK - top n values
    * @returns 0 the docs with topk documents
    */
   async search(query: string, topK = 2, category?: string) {
+    this.logger.info('[VectorService:search]: Api called search function for searching the releavent document for RAG')
     const queryEmbedding = await this.embeddingService.embed(query);
 
-    // Filter first, then score
+    // Filter first from the documents about the category
     const pool = category
       ? this.documents.filter(d => d.metadata.category === category)
       : this.documents;
-
-    console.log(`Searching ${pool.length}/${this.documents.length} chunks`
-      + (category ? ` (filtered: ${category})` : ' (no filter)'));
 
     const results = pool.map((doc) => ({
       text: doc.text,
@@ -100,6 +103,7 @@ export class VectorService implements OnModuleInit {
       metadata: doc.metadata,
     }));
 
+    // Sorting based on the scores
     results.sort((a, b) => b.score - a.score);
     return results.slice(0, topK);
   }
@@ -122,7 +126,7 @@ export class VectorService implements OnModuleInit {
   getDistinctCategories(): string[] {
     const categories = this.documents.map(d => d.metadata.category);
     // Add category to the set to avoid duplicates
-    return [...new Set(categories)]; 
-    
+    return [...new Set(categories)];
+
   }
 }
