@@ -17,6 +17,7 @@ import { IntentService } from './intent/intent.service';
 import { IntentModule } from './intent/intent.module';
 import { RerankModule } from './rerank/rerank.module';
 import { EvalModule } from './eval/eval.module';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -51,7 +52,9 @@ import { EvalModule } from './eval/eval.module';
     ChunckingModule,
     IntentModule,
     RerankModule,
-    EvalModule],
+    EvalModule,
+    CacheModule
+  ],
   controllers: [AppController, TestController, SemanticController,],
   providers: [AppService, SemanticService, IntentService],
 })

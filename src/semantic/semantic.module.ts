@@ -6,6 +6,8 @@ import { LlmModule } from '../llm/llm.module';
 import { IntentModule } from '../intent/intent.module';
 import { RerankModule } from '../rerank/rerank.module';
 import { EvalModule } from '../eval/eval.module';
+import { EmbeddingModule } from '../embedding/embedding.module';
+import { CacheModule } from '../cache/cache.module';
 
 @Module({
   imports: [
@@ -13,7 +15,9 @@ import { EvalModule } from '../eval/eval.module';
     LlmModule,
     IntentModule,
     RerankModule,
-    EvalModule
+    EvalModule,
+    EmbeddingModule,
+    CacheModule
   ],
   providers: [SemanticService],
   controllers: [SemanticController],
