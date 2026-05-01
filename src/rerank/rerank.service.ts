@@ -99,6 +99,13 @@ export class RerankService {
     return scores;
   }
 
+  /**
+   * Rerank function with single llm call
+   * @param query 
+   * @param candidates 
+   * @param topN 
+   * @returns 
+   */
   async rerank(query, candidates, topN = 2) {
     console.log(`🔄 Reranking ${candidates.length} candidates...`);
 
