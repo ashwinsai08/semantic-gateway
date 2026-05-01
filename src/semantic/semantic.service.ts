@@ -31,7 +31,7 @@ export class SemanticService {
     // Call made to embed the query so that to check sematic caching
     const queryEmbedding = await this.embeddingService.embed(query);
 
-    // Cache check
+    // Semantic Cache check
     const cachedResult = await this.cacheService.getSemanticCache(queryEmbedding);
 
     // Check if cache is presnt
@@ -42,18 +42,26 @@ export class SemanticService {
 
     this.logger.info('SemanticService:process]: Cache not present — running full pipeline', { context: 'SemanticService' });
 
+    // Call vector service to get all the distinct categories from the documents
     const categories = this.vectorService.getDistinctCategories();
+
+    // Call made to Intent Service to extract the particular category related to the query
     const category = await this.intentService.extractCategory(query, categories);
     this.logger.info(`SemanticService:process]: Category detected: ${category ?? 'none'}`, { context: 'SemanticService' });
 
+    // Call made to search the particular chunk
     const candidates = await this.vectorService.search(query, 6, category);
     this.logger.info(`SemanticService:process]: Vector search returned ${candidates.length} candidates`, { context: 'SemanticService' });
 
+    // Call made to rerank the responses from the vector search function to give relevant answer
     const reranked = await this.rerankService.rerank(query, candidates, 2);
     const bestScore = reranked[0]?.rerankScore || 0;
     const context = reranked.map((r) => r.text).join('\n');
+
+    // Calculate the latency ms
     const latencyMs = Date.now() - startTime;
 
+    // Check if the rerank score is greater than 5 then we use RAG flow else its a noraml LLM Call
     if (bestScore > 5) {
       const prompt = `
         You are a helpful assistant.
@@ -65,6 +73,7 @@ export class SemanticService {
       const result = { source: 'RAG', vectorScore: candidates[0]?.score, rerankScore: bestScore, answer };
 
       this.logger.info('SemanticService:process]: RAG answer generated', { context: 'SemanticService', latencyMs, rerankScore: bestScore });
+
 
       await this.cacheService.setSemanticCache(queryEmbedding, query, result, 300);
 
