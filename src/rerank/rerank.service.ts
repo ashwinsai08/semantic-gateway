@@ -107,7 +107,7 @@ export class RerankService {
    * @returns - top value after remarks
    */
   async rerank(query, candidates, topN = 2) {
-    console.log(`🔄 Reranking ${candidates.length} candidates...`);
+    console.log(`Reranking ${candidates.length} candidates...`);
 
     // One LLM call instead of N calls
     const scores = await this.scoreAllCandidates(
