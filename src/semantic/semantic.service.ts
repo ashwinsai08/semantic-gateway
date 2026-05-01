@@ -3,6 +3,7 @@ import { VectorService } from '../vector/vector.service';
 import { LlmService } from '../llm/llm.service';
 import { IntentService } from '../intent/intent.service';
 import { RerankService } from '../rerank/rerank.service';
+import { EvalService } from '../eval/eval.service';
 
 @Injectable()
 export class SemanticService {
@@ -11,6 +12,7 @@ export class SemanticService {
     private readonly llmService: LlmService,
     private readonly intentService: IntentService,
     private readonly rerankService: RerankService,
+    private readonly evalService: EvalService,
   ) { }
 
   /**
@@ -19,6 +21,9 @@ export class SemanticService {
    * @returns - The response from LLM(Constructed based on the prompt)
    */
   async process(query: string) {
+
+    const startTime = Date.now();
+
     // Step 1 — extract category
     const categories = this.vectorService.getDistinctCategories();
     const category = await this.intentService.extractCategory(query, categories);
@@ -33,7 +38,8 @@ export class SemanticService {
 
     const bestScore = reranked[0]?.rerankScore || 0;
     const context = reranked.map((r) => r.text).join('\n');
-
+    const latencyMs = Date.now() - startTime;
+    console.log('latencyMs:', latencyMs);
     // Step 4 — generate answer
     if (bestScore > 5) {
       const prompt = `
@@ -43,6 +49,17 @@ export class SemanticService {
     Question: ${query}
   `;
       const answer = await this.llmService.generate(prompt);
+
+      // Evaluate the score of the LLM Response
+      this.evalService.evaluate({
+        query,
+        answer,
+        context,
+        source: 'RAG',
+        rerankScore: bestScore,
+        latencyMs,
+      });
+
       return {
         source: 'RAG',
         vectorScore: candidates[0]?.score,
@@ -51,7 +68,18 @@ export class SemanticService {
       };
     }
 
+    // LLM Fallback incase its not a RAG
     const answer = await this.llmService.generate(query);
+
+    // Evaluate the score of LLM Response
+    this.evalService.evaluate({
+      query,
+      answer,
+      context,
+      source: 'LLM',
+      rerankScore: bestScore,
+      latencyMs,
+    });
     return {
       source: 'LLM',
       rerankScore: bestScore,

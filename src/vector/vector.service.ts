@@ -86,12 +86,12 @@ export class VectorService implements OnModuleInit {
   async search(query: string, topK = 2, category?: string) {
     const queryEmbedding = await this.embeddingService.embed(query);
 
-    // Filter first, then score — this is the key change
+    // Filter first, then score
     const pool = category
       ? this.documents.filter(d => d.metadata.category === category)
       : this.documents;
 
-    console.log(`🔍 Searching ${pool.length}/${this.documents.length} chunks`
+    console.log(`Searching ${pool.length}/${this.documents.length} chunks`
       + (category ? ` (filtered: ${category})` : ' (no filter)'));
 
     const results = pool.map((doc) => ({

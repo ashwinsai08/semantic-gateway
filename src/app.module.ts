@@ -16,6 +16,7 @@ import { ChunckingModule } from './chuncking/chuncking.module';
 import { IntentService } from './intent/intent.service';
 import { IntentModule } from './intent/intent.module';
 import { RerankModule } from './rerank/rerank.module';
+import { EvalModule } from './eval/eval.module';
 
 @Module({
   imports: [
@@ -33,13 +34,24 @@ import { RerankModule } from './rerank/rerank.module';
       autoLoadEntities: true,
       synchronize: false,
     }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'postgres',
+      database: 'semantic_gateway',
+      autoLoadEntities: true,  // ← this picks up all entities automatically
+      synchronize: false,      // ← keep false, we created table manually
+    }),
     EmbeddingModule,
     VectorModule,
     SemanticModule,
     DocumentsModule,
     ChunckingModule,
     IntentModule,
-    RerankModule],
+    RerankModule,
+    EvalModule],
   controllers: [AppController, TestController, SemanticController,],
   providers: [AppService, SemanticService, IntentService],
 })
