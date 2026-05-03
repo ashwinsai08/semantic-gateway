@@ -51,6 +51,7 @@ LlmService (Groq · llama-3.1-8b-instant)
              ├── Relevance score (0-10)
              └── Logged to Postgres eval_logs table
 ```
+<img width="736" height="728" alt="check cache" src="https://github.com/user-attachments/assets/bc0b89b8-859d-4274-acf2-a040b4b159af" />
 
 ---
 
