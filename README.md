@@ -326,7 +326,3 @@ FROM eval_logs;
 NestJS · Distributed Systems · AI Backend Integration
 
 ---
-
-## License
-
-MIT
