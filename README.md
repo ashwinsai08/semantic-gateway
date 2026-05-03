@@ -2,8 +2,6 @@
 
 > A production-grade RAG (Retrieval-Augmented Generation) API built with NestJS — designed to answer natural language queries using your own documents, with semantic caching, intelligent reranking, and automated quality evaluation.
 
-Built by **Aswin Sai**
-
 ---
 
 ## What This Does
