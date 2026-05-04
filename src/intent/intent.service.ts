@@ -8,10 +8,15 @@ export class IntentService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly embeddingService: EmbeddingService,
-  ) { }
+  ) {}
 
-  async extractCategory(query: string, categories: string[]): Promise<string | undefined> {
-    this.logger.info('[IntentService:extractCategory]: Api called to extract the relavent category')
+  async extractCategory(
+    query: string,
+    categories: string[],
+  ): Promise<string | undefined> {
+    this.logger.info(
+      '[IntentService:extractCategory]: Api called to extract the relavent category',
+    );
     if (categories.length === 0) return undefined;
 
     // Embed the query from the user
@@ -34,7 +39,9 @@ export class IntentService {
   }
 
   private cosineSimilarity(a: number[], b: number[]): number {
-    this.logger.info('[IntentService:cosineSimilarity]: Api called to find the cosine similarity')
+    this.logger.info(
+      '[IntentService:cosineSimilarity]: Api called to find the cosine similarity',
+    );
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
     const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
     const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));

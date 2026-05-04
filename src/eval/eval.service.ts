@@ -35,7 +35,7 @@ export class EvalService {
   async evaluate(input: EvalInput): Promise<void> {
     // Fire and forget — don't await this in SemanticService
     this.runEval(input).catch((err) =>
-      console.error('Eval pipeline error:', err.message)
+      console.error('Eval pipeline error:', err.message),
     );
   }
 
@@ -52,15 +52,17 @@ export class EvalService {
       answer,
       context,
       source,
-      faithfulness:      result.faithfulness,
-      relevance:         result.relevance,
-      rerankScore:       rerankScore ?? null,
-      verified:          result.verified,
+      faithfulness: result.faithfulness,
+      relevance: result.relevance,
+      rerankScore: rerankScore ?? null,
+      verified: result.verified,
       hallucinationRisk: result.hallucinationRisk,
-      latencyMs:         latencyMs ?? null,
+      latencyMs: latencyMs ?? null,
     });
 
-    console.log(`✅ Eval saved — faithfulness: ${result.faithfulness ?? 'N/A'}, relevance: ${result.relevance}`);
+    console.log(
+      `✅ Eval saved — faithfulness: ${result.faithfulness ?? 'N/A'}, relevance: ${result.relevance}`,
+    );
   }
 
   private async scoreResponse(
@@ -69,14 +71,13 @@ export class EvalService {
     context: string | null,
     source: 'RAG' | 'LLM',
   ): Promise<EvalResult> {
-
     if (source === 'RAG' && context) {
       // Full eval — score both faithfulness and relevance
       const scores = await this.scoreRAG(query, answer, context);
       return {
-        faithfulness:      scores.faithfulness,
-        relevance:         scores.relevance,
-        verified:          true,
+        faithfulness: scores.faithfulness,
+        relevance: scores.relevance,
+        verified: true,
         hallucinationRisk: scores.faithfulness >= 7 ? 'low' : 'high',
       };
     }
@@ -84,9 +85,9 @@ export class EvalService {
     // LLM fallback — relevance only
     const relevance = await this.scoreRelevanceOnly(query, answer);
     return {
-      faithfulness:      null,
+      faithfulness: null,
       relevance,
-      verified:          false,
+      verified: false,
       hallucinationRisk: 'high',
     };
   }
@@ -99,7 +100,6 @@ export class EvalService {
     answer: string,
     context: string,
   ): Promise<{ faithfulness: number; relevance: number }> {
-
     const prompt = `
 You are an evaluation system. Score the answer on two metrics.
 Reply with ONLY two numbers separated by a comma.
@@ -126,7 +126,7 @@ Scores (faithfulness,relevance):`;
 
     return {
       faithfulness: parseFloat(parts[0]) || 0,
-      relevance:    parseFloat(parts[1]) || 0,
+      relevance: parseFloat(parts[1]) || 0,
     };
   }
 
@@ -137,7 +137,6 @@ Scores (faithfulness,relevance):`;
     query: string,
     answer: string,
   ): Promise<number> {
-
     const prompt = `
 Score how well this answer addresses the question.
 Reply with ONLY a single number from 0 to 10.

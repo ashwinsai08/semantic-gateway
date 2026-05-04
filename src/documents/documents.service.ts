@@ -12,7 +12,7 @@ export class DocumentsService {
     private repo: Repository<DocumentEntity>,
     @InjectDataSource() private dataSource: DataSource,
     private embeddingService: EmbeddingService,
-  ) { }
+  ) {}
 
   /**
    * Service to add the value in the database
@@ -32,7 +32,7 @@ export class DocumentsService {
 
   /**
    * Service to search a similar response in the database based on the query
-   * @param query - The query to fetch the similar response from the 
+   * @param query - The query to fetch the similar response from the
    * @returns - Results from the Database
    */
 
@@ -56,7 +56,7 @@ export class DocumentsService {
       console.log('results:', results);
       return results;
     } catch (e) {
-      console.error('FULL ERROR:', e);  // ← full error object
+      console.error('FULL ERROR:', e); // ← full error object
       return [];
     }
   }

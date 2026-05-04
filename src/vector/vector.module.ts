@@ -10,4 +10,4 @@ import { ChunckingService } from 'src/chuncking/chuncking.service';
   providers: [VectorService, ChunckingService],
   exports: [VectorService],
 })
-export class VectorModule { }
+export class VectorModule {}

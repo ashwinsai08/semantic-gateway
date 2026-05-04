@@ -1,4 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity('eval_logs')
 export class EvalLogEntity {
@@ -23,18 +28,18 @@ export class EvalLogEntity {
   @Column({ type: 'float' })
   relevance: number;
 
-  @Column({ name: 'rerank_score', type: 'float', nullable: true })  // ← explicit name
+  @Column({ name: 'rerank_score', type: 'float', nullable: true }) // ← explicit name
   rerankScore: number | null;
 
   @Column({ type: 'boolean', default: false })
   verified: boolean;
 
-  @Column({ name: 'hallucination_risk', type: 'varchar', length: 10 })  // ← explicit name
+  @Column({ name: 'hallucination_risk', type: 'varchar', length: 10 }) // ← explicit name
   hallucinationRisk: string;
 
-  @Column({ name: 'latency_ms', type: 'int', nullable: true })  // ← explicit name
+  @Column({ name: 'latency_ms', type: 'int', nullable: true }) // ← explicit name
   latencyMs: number | null;
 
-  @CreateDateColumn({ name: 'created_at' })  // ← explicit name
+  @CreateDateColumn({ name: 'created_at' }) // ← explicit name
   createdAt: Date;
 }

@@ -5,10 +5,7 @@ import { EvalLogEntity } from './entity/eval-log.entity';
 import { LlmModule } from '../llm/llm.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([EvalLogEntity]),
-    LlmModule,
-  ],
+  imports: [TypeOrmModule.forFeature([EvalLogEntity]), LlmModule],
   providers: [EvalService],
   exports: [EvalService],
 })

@@ -17,7 +17,7 @@ import { CacheModule } from '../cache/cache.module';
     RerankModule,
     EvalModule,
     EmbeddingModule,
-    CacheModule
+    CacheModule,
   ],
   providers: [SemanticService],
   controllers: [SemanticController],

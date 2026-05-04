@@ -14,18 +14,22 @@ type RankedResult = {
 export class RerankService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    private readonly llmService: LlmService
-  ) 
-  { }
+    private readonly llmService: LlmService,
+  ) {}
 
   /**
    * Score all candiates function to use one llm call instead of mant
    * @param query - query form the user
    * @param candidates - candiates from top values
-   * @returns 
+   * @returns
    */
-  private async scoreAllCandidates(query: string,candidates: string[]): Promise<number[]> {
-    this.logger.info('[RerankService:scoreAllCandidates]: Api called function to give scores based on the text')
+  private async scoreAllCandidates(
+    query: string,
+    candidates: string[],
+  ): Promise<number[]> {
+    this.logger.info(
+      '[RerankService:scoreAllCandidates]: Api called function to give scores based on the text',
+    );
     const numbered = candidates
       .map((c, i) => `[${i + 1}] "${c.substring(0, 150)}"`)
       .join('\n');
@@ -41,7 +45,10 @@ export class RerankService {
 
     // Call made to LLM Service
     const response = await this.llmService.generate(prompt);
-    const scores = response.trim().split(',').map(s => parseFloat(s.trim()) || 0);
+    const scores = response
+      .trim()
+      .split(',')
+      .map((s) => parseFloat(s.trim()) || 0);
     return scores;
   }
 
@@ -53,10 +60,15 @@ export class RerankService {
    * @returns - top value after remarks
    */
   async rerank(query, candidates, topN = 2) {
-    this.logger.info(`[RerankService:rerank]Reranking ${candidates.length} candidates...`);
+    this.logger.info(
+      `[RerankService:rerank]Reranking ${candidates.length} candidates...`,
+    );
 
     // Call LLM to rerank the chunks
-    const scores = await this.scoreAllCandidates(query,candidates.map(c => c.text));
+    const scores = await this.scoreAllCandidates(
+      query,
+      candidates.map((c) => c.text),
+    );
 
     const scored = candidates.map((candidate, i) => ({
       text: candidate.text,
@@ -64,7 +76,7 @@ export class RerankService {
       rerankScore: scores[i] ?? 0,
       metadata: candidate.metadata,
     }));
-    
+
     // Sort based on the scores
     scored.sort((a, b) => b.rerankScore - a.rerankScore);
 

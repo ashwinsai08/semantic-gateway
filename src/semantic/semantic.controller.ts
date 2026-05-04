@@ -13,7 +13,7 @@ export class SemanticController {
   @Get()
   async query(@Query('q') query: string) {
     // this.logger.log('info','Query came to this semantic controller');
-    console.log('came to this query')
+    console.log('came to this query');
     if (!query) {
       return { error: 'Query is required' };
     }

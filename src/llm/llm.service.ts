@@ -8,10 +8,9 @@ import { Logger } from 'winston';
  */
 @Injectable()
 export class LlmService {
-
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-  ) { }
+  ) {}
 
   //  Client URL and API KEY (GROKQ used here)
   private client = new OpenAI({
@@ -25,12 +24,12 @@ export class LlmService {
    * @returns - The response from LLM
    */
   async generate(prompt: string): Promise<any> {
-    this.logger.info('[LlmService:generate]: Api called to generate the request from LLM')
+    this.logger.info(
+      '[LlmService:generate]: Api called to generate the request from LLM',
+    );
     const response = await this.client.chat.completions.create({
       model: 'llama-3.1-8b-instant',
-      messages: [
-        { role: 'user', content: prompt },
-      ],
+      messages: [{ role: 'user', content: prompt }],
     });
 
     return response.choices[0].message.content;

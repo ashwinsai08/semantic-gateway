@@ -7,6 +7,6 @@ import { LlmModule } from '../llm/llm.module';
   imports: [LlmModule],
   controllers: [RerankController],
   providers: [RerankService],
-  exports: [RerankService]
+  exports: [RerankService],
 })
 export class RerankModule {}

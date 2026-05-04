@@ -10,9 +10,10 @@ import { EmbeddingService } from '../embedding/embedding.service';
  */
 @Controller('documents')
 export class DocumentsController {
-  constructor(private readonly documentsService: DocumentsService,
+  constructor(
+    private readonly documentsService: DocumentsService,
     private embeddingService: EmbeddingService,
-  ) { }
+  ) {}
 
   @Post()
   async create(@Body('content') content: string) {
@@ -26,7 +27,7 @@ export class DocumentsController {
    */
   @Get('search')
   async search(@Query('q') query: string) {
-    console.log('came here for controller')
+    console.log('came here for controller');
     return this.documentsService.searchSimilar(query);
   }
 }

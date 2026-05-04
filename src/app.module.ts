@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LlmModule } from './llm/llm.module';
-import { TestController } from './test/test.controller';
-import { TestModule } from './test/test.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmbeddingModule } from './embedding/embedding.module';
 import { VectorModule } from './vector/vector.module';
@@ -40,7 +38,7 @@ import configuration from './config/app.config';
         database: config.get('typeorm.database'),
         autoLoadEntities: true,
         synchronize: false,
-      })
+      }),
     }),
     EmbeddingModule,
     VectorModule,
@@ -50,9 +48,9 @@ import configuration from './config/app.config';
     IntentModule,
     RerankModule,
     EvalModule,
-    CacheModule
+    CacheModule,
   ],
-  controllers: [AppController, TestController, SemanticController,],
+  controllers: [AppController, SemanticController],
   providers: [AppService, SemanticService, IntentService],
 })
 export class AppModule { }

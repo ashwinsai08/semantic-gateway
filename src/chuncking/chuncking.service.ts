@@ -4,8 +4,6 @@ import { UpdateChunckingDto } from './dto/update-chuncking.dto';
 
 @Injectable()
 export class ChunckingService {
-
-
   /**
    * Split text into overlapping chunks based on charecters
    * @param text      - Full document text
@@ -39,10 +37,10 @@ export class ChunckingService {
   chunkSentences(text: string, chunkSize = 200, overlap = 1): string[] {
     // Step 1: Split into sentences
     const sentences = text
-      .replace(/\s+/g, ' ')         // normalize whitespace
+      .replace(/\s+/g, ' ') // normalize whitespace
       .trim()
-      .split(/(?<=[.!?])\s+/)       // split AFTER punctuation
-      .filter(s => s.length > 0);
+      .split(/(?<=[.!?])\s+/) // split AFTER punctuation
+      .filter((s) => s.length > 0);
 
     const chunks: string[] = [];
     let currentChunk: string[] = [];
@@ -50,7 +48,10 @@ export class ChunckingService {
 
     for (const sentence of sentences) {
       // If adding this sentence exceeds limit AND we have content
-      if (currentLength + sentence.length > chunkSize && currentChunk.length > 0) {
+      if (
+        currentLength + sentence.length > chunkSize &&
+        currentChunk.length > 0
+      ) {
         chunks.push(currentChunk.join(' '));
 
         // Overlap: keep last N sentences in next chunk
@@ -74,5 +75,4 @@ export class ChunckingService {
   chunkDocuments(docs: string[]): string[] {
     return docs.flatMap((doc) => this.chunkSentences(doc));
   }
-
 }

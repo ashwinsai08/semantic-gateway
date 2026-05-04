@@ -22,7 +22,8 @@ export class VectorService implements OnModuleInit {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly embeddingService: EmbeddingService,
-    private readonly chunkingService: ChunckingService,) { }
+    private readonly chunkingService: ChunckingService,
+  ) {}
 
   async onModuleInit() {
     await this.indexDocuments();
@@ -60,7 +61,6 @@ export class VectorService implements OnModuleInit {
 
     // Add documents wuthe proper meta data
     for (const doc of rawDocs) {
-
       // First of all chunk the documents
       const chunks = this.chunkingService.chunkText(doc.text);
 
@@ -89,12 +89,14 @@ export class VectorService implements OnModuleInit {
    * @returns 0 the docs with topk documents
    */
   async search(query: string, topK = 2, category?: string) {
-    this.logger.info('[VectorService:search]: Api called search function for searching the releavent document for RAG')
+    this.logger.info(
+      '[VectorService:search]: Api called search function for searching the releavent document for RAG',
+    );
     const queryEmbedding = await this.embeddingService.embed(query);
 
     // Filter first from the documents about the category
     const pool = category
-      ? this.documents.filter(d => d.metadata.category === category)
+      ? this.documents.filter((d) => d.metadata.category === category)
       : this.documents;
 
     const results = pool.map((doc) => ({
@@ -107,7 +109,6 @@ export class VectorService implements OnModuleInit {
     results.sort((a, b) => b.score - a.score);
     return results.slice(0, topK);
   }
-
 
   /**
    * Function to find the cosine similarity value
@@ -122,11 +123,9 @@ export class VectorService implements OnModuleInit {
     return dot / (magA * magB);
   }
 
-
   getDistinctCategories(): string[] {
-    const categories = this.documents.map(d => d.metadata.category);
+    const categories = this.documents.map((d) => d.metadata.category);
     // Add category to the set to avoid duplicates
     return [...new Set(categories)];
-
   }
 }

@@ -20,7 +20,9 @@ export default () => ({
     host: process.env.REDIS_HOST ?? 'localhost',
     port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
     ttlSeconds: parseInt(process.env.REDIS_TTL_SECONDS ?? '300', 10),
-    semanticThreshold: parseFloat(process.env.REDIS_SEMANTIC_THRESHOLD ?? '0.88'),
+    semanticThreshold: parseFloat(
+      process.env.REDIS_SEMANTIC_THRESHOLD ?? '0.88',
+    ),
   },
 
   typeorm: {

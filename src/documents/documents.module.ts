@@ -7,12 +7,9 @@ import { DocumentEntity } from './entity/documents.entity';
 import { Pool } from 'pg';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([DocumentEntity]),
-    EmbeddingModule,
-  ],
+  imports: [TypeOrmModule.forFeature([DocumentEntity]), EmbeddingModule],
   providers: [DocumentsService],
   controllers: [DocumentsController],
   exports: [DocumentsService],
 })
-export class DocumentsModule { }
+export class DocumentsModule {}

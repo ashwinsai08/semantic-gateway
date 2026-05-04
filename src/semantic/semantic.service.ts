@@ -23,7 +23,9 @@ export class SemanticService {
   ) {}
 
   async process(query: string) {
-    this.logger.info('[SemanticService:process]: Api called sematic service for checking RAG pipeline');
+    this.logger.info(
+      '[SemanticService:process]: Api called sematic service for checking RAG pipeline',
+    );
 
     const startTime = Date.now();
     this.logger.info('Processing query', { context: 'SemanticService', query });
@@ -32,26 +34,37 @@ export class SemanticService {
     const queryEmbedding = await this.embeddingService.embed(query);
 
     // Semantic Cache check
-    const cachedResult = await this.cacheService.getSemanticCache(queryEmbedding);
+    const cachedResult =
+      await this.cacheService.getSemanticCache(queryEmbedding);
 
     // Check if cache is presnt
     if (cachedResult) {
-      this.logger.info('SemanticService:process]: Cache is present', { context: 'SemanticService', query });
-      return { ...cachedResult.answer, source: 'CACHE', cachedQuery: cachedResult.query };
+      this.logger.info('SemanticService:process]: Cache is present', {
+        context: 'SemanticService',
+        query,
+      });
+      return {
+        ...cachedResult.answer,
+        source: 'CACHE',
+        cachedQuery: cachedResult.query,
+      };
     }
 
-    this.logger.info('SemanticService:process]: Cache not present — running full pipeline', { context: 'SemanticService' });
+    this.logger.info('SemanticService:process]: Cache not present — running full pipeline',{ context: 'SemanticService' },);
 
     // Call vector service to get all the distinct categories from the documents
     const categories = this.vectorService.getDistinctCategories();
 
     // Call made to Intent Service to extract the particular category related to the query
-    const category = await this.intentService.extractCategory(query, categories);
-    this.logger.info(`SemanticService:process]: Category detected: ${category ?? 'none'}`, { context: 'SemanticService' });
+    const category = await this.intentService.extractCategory(
+      query,
+      categories,
+    );
+    this.logger.info( `SemanticService:process]: Category detected: ${category ?? 'none'}`, { context: 'SemanticService' }, );
 
     // Call made to search the particular chunk
     const candidates = await this.vectorService.search(query, 6, category);
-    this.logger.info(`SemanticService:process]: Vector search returned ${candidates.length} candidates`, { context: 'SemanticService' });
+    this.logger.info(`SemanticService:process]: Vector search returned ${candidates.length} candidates`,{ context: 'SemanticService' },);
 
     // Call made to rerank the responses from the vector search function to give relevant answer
     const reranked = await this.rerankService.rerank(query, candidates, 2);
@@ -70,22 +83,47 @@ export class SemanticService {
         Question: ${query}
       `;
       const answer = await this.llmService.generate(prompt);
-      const result = { source: 'RAG', vectorScore: candidates[0]?.score, rerankScore: bestScore, answer };
+      const result = {
+        source: 'RAG',
+        vectorScore: candidates[0]?.score,
+        rerankScore: bestScore,
+        answer,
+      };
 
-      this.logger.info('SemanticService:process]: RAG answer generated', { context: 'SemanticService', latencyMs, rerankScore: bestScore });
+      this.logger.info('SemanticService:process]: RAG answer generated', {context: 'SemanticService',latencyMs,rerankScore: bestScore,});
 
+      await this.cacheService.setSemanticCache(
+        queryEmbedding,
+        query,
+        result,
+        300,
+      );
 
-      await this.cacheService.setSemanticCache(queryEmbedding, query, result, 300);
-
-      this.evalService.evaluate({ query, answer, context, source: 'RAG', rerankScore: bestScore, latencyMs });
+      this.evalService.evaluate({
+        query,
+        answer,
+        context,
+        source: 'RAG',
+        rerankScore: bestScore,
+        latencyMs,
+      });
 
       return result;
     }
 
     const answer = await this.llmService.generate(query);
-    this.logger.warn('SemanticService:process]: Falling back to LLM — low rerank score', { context: 'SemanticService', bestScore });
+    this.logger.warn(
+      'SemanticService:process]: Falling back to LLM — low rerank score',
+      { context: 'SemanticService', bestScore },
+    );
 
-    this.evalService.evaluate({ query, answer, context: null, source: 'LLM', latencyMs });
+    this.evalService.evaluate({
+      query,
+      answer,
+      context: null,
+      source: 'LLM',
+      latencyMs,
+    });
 
     return { source: 'LLM', rerankScore: bestScore, answer };
   }

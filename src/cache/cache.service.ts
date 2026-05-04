@@ -12,14 +12,15 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.client.on('connect', () => console.log('✅ Redis connected'));
-    this.client.on('error', (err) => console.error('Redis error:', err.message));
+    this.client.on('error', (err) =>
+      console.error('Redis error:', err.message),
+    );
   }
 
   onModuleDestroy() {
     this.client.quit();
   }
 
-  // ─── Level 1: Exact cache ───────────────────────────────────────────
 
   async get(key: string): Promise<string | null> {
     return this.client.get(key);
@@ -28,8 +29,6 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   async set(key: string, value: string, ttlSeconds = 300): Promise<void> {
     await this.client.set(key, value, 'EX', ttlSeconds);
   }
-
-  // ─── Level 2: Semantic cache ─────────────────────────────────────────
 
   // Store query embedding + answer together
   async setSemanticCache(
@@ -54,7 +53,6 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     queryEmbedding: number[],
     threshold = 0.92,
   ): Promise<any | null> {
-    // Get all semantic cache keys
     const keys = await this.client.keys('semantic:*');
 
     if (keys.length === 0) return null;
@@ -68,8 +66,6 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
       const cached = JSON.parse(raw);
       const score = this.cosineSimilarity(queryEmbedding, cached.embedding);
-
-      console.log(`  cache compare score: ${score.toFixed(4)} → "${cached.query.substring(0, 40)}"`);
 
       if (score > bestScore) {
         bestScore = score;
@@ -96,6 +92,9 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   // Simple hash to use as Redis key
   private hashEmbedding(embedding: number[]): string {
     // Take first 8 values as fingerprint — fast, good enough for keying
-    return embedding.slice(0, 8).map(v => v.toFixed(4)).join('_');
+    return embedding
+      .slice(0, 8)
+      .map((v) => v.toFixed(4))
+      .join('_');
   }
 }

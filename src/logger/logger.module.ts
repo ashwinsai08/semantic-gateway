@@ -12,9 +12,11 @@ import * as winston from 'winston';
           format: winston.format.combine(
             winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
             winston.format.colorize(),
-            winston.format.printf(({ timestamp, level, message, context, trace }) => {
-              return `[${timestamp}] [${level}] ${context ? `[${context}]` : ''} ${message}${trace ? `\n${trace}` : ''}`;
-            }),
+            winston.format.printf(
+              ({ timestamp, level, message, context, trace }) => {
+                return `[${timestamp}] [${level}] ${context ? `[${context}]` : ''} ${message}${trace ? `\n${trace}` : ''}`;
+              },
+            ),
           ),
         }),
 

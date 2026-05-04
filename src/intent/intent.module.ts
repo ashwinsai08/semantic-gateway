@@ -3,8 +3,8 @@ import { IntentService } from './intent.service';
 import { EmbeddingModule } from '../embedding/embedding.module';
 
 @Module({
-  imports : [EmbeddingModule],
+  imports: [EmbeddingModule],
   providers: [IntentService],
-  exports: [IntentService]
+  exports: [IntentService],
 })
 export class IntentModule {}
