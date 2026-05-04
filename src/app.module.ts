@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { LlmModule } from './llm/llm.module';
 import { TestController } from './test/test.controller';
 import { TestModule } from './test/test.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmbeddingModule } from './embedding/embedding.module';
 import { VectorModule } from './vector/vector.module';
 import { SemanticController } from './semantic/semantic.controller';
@@ -19,33 +19,28 @@ import { RerankModule } from './rerank/rerank.module';
 import { EvalModule } from './eval/eval.module';
 import { CacheModule } from './cache/cache.module';
 import { LoggerModule } from './logger/logger.module';
+import configuration from './config/app.config';
 
 @Module({
   imports: [
     LoggerModule,
     LlmModule,
     ConfigModule.forRoot({
-      isGlobal: true, // 👈 important
+      load: [configuration],
+      isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'semantic_gateway',
-      autoLoadEntities: true,
-      synchronize: false,
-    }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'semantic_gateway',
-      autoLoadEntities: true,  // ← this picks up all entities automatically
-      synchronize: false,      // ← keep false, we created table manually
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get('typeorm.host'),
+        port: config.get('typeorm.port'),
+        username: config.get('typeorm.username'),
+        password: config.get('typeorm.password'),
+        database: config.get('typeorm.database'),
+        autoLoadEntities: true,
+        synchronize: false,
+      })
     }),
     EmbeddingModule,
     VectorModule,
