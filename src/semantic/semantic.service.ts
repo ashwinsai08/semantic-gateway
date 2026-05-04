@@ -1,12 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { CacheService } from 'src/cache/cache.service';
-import { EmbeddingService } from 'src/embedding/embedding.service';
-import { EvalService } from 'src/eval/eval.service';
-import { IntentService } from 'src/intent/intent.service';
-import { LlmService } from 'src/llm/llm.service';
-import { RerankService } from 'src/rerank/rerank.service';
-import { VectorService } from 'src/vector/vector.service';
+import { CacheService } from '../cache/cache.service';
+import { EmbeddingService } from '../embedding/embedding.service';
+import { EvalService } from '../eval/eval.service';
+import { IntentService } from '../intent/intent.service';
+import { LlmService } from '../llm/llm.service';
+import { RerankService } from '../rerank/rerank.service';
+import { VectorService } from '../vector/vector.service';
 import { Logger } from 'winston';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class SemanticService {
     private readonly rerankService: RerankService,
     private readonly evalService: EvalService,
     private readonly cacheService: CacheService,
-  ) {}
+  ) { }
 
   async process(query: string) {
     this.logger.info(
@@ -50,7 +50,7 @@ export class SemanticService {
       };
     }
 
-    this.logger.info('SemanticService:process]: Cache not present — running full pipeline',{ context: 'SemanticService' },);
+    this.logger.info('SemanticService:process]: Cache not present — running full pipeline', { context: 'SemanticService' },);
 
     // Call vector service to get all the distinct categories from the documents
     const categories = this.vectorService.getDistinctCategories();
@@ -60,11 +60,11 @@ export class SemanticService {
       query,
       categories,
     );
-    this.logger.info( `SemanticService:process]: Category detected: ${category ?? 'none'}`, { context: 'SemanticService' }, );
+    this.logger.info(`SemanticService:process]: Category detected: ${category ?? 'none'}`, { context: 'SemanticService' },);
 
     // Call made to search the particular chunk
     const candidates = await this.vectorService.search(query, 6, category);
-    this.logger.info(`SemanticService:process]: Vector search returned ${candidates.length} candidates`,{ context: 'SemanticService' },);
+    this.logger.info(`SemanticService:process]: Vector search returned ${candidates.length} candidates`, { context: 'SemanticService' },);
 
     // Call made to rerank the responses from the vector search function to give relevant answer
     const reranked = await this.rerankService.rerank(query, candidates, 2);
@@ -90,7 +90,7 @@ export class SemanticService {
         answer,
       };
 
-      this.logger.info('SemanticService:process]: RAG answer generated', {context: 'SemanticService',latencyMs,rerankScore: bestScore,});
+      this.logger.info('SemanticService:process]: RAG answer generated', { context: 'SemanticService', latencyMs, rerankScore: bestScore, });
 
       await this.cacheService.setSemanticCache(
         queryEmbedding,
