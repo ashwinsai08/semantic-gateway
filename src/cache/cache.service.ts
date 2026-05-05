@@ -21,7 +21,6 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     this.client.quit();
   }
 
-
   async get(key: string): Promise<string | null> {
     return this.client.get(key);
   }
