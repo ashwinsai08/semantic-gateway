@@ -22,7 +22,6 @@ export class ChunckingService {
         chunks.push(chunk);
       }
 
-      // Move forward but keep overlap
       start += chunkSize - overlap;
     }
 
@@ -35,11 +34,10 @@ export class ChunckingService {
    * Never breaks mid-sentence
    */
   chunkSentences(text: string, chunkSize = 200, overlap = 1): string[] {
-    // Step 1: Split into sentences
     const sentences = text
-      .replace(/\s+/g, ' ') // normalize whitespace
+      .replace(/\s+/g, ' ')
       .trim()
-      .split(/(?<=[.!?])\s+/) // split AFTER punctuation
+      .split(/(?<=[.!?])\s+/)
       .filter((s) => s.length > 0);
 
     const chunks: string[] = [];
@@ -47,14 +45,12 @@ export class ChunckingService {
     let currentLength = 0;
 
     for (const sentence of sentences) {
-      // If adding this sentence exceeds limit AND we have content
       if (
         currentLength + sentence.length > chunkSize &&
         currentChunk.length > 0
       ) {
         chunks.push(currentChunk.join(' '));
 
-        // Overlap: keep last N sentences in next chunk
         currentChunk = currentChunk.slice(-overlap);
         currentLength = currentChunk.join(' ').length;
       }
